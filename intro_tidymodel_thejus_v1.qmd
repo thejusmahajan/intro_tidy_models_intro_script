@@ -1,0 +1,203 @@
+---
+title: "introduction_to_tidymodels"
+format: html
+editor: visual
+---
+
+## Introduction to Tidymodels
+
+Necessary packages are loaded. We use the `penguins` data as we are acquainted with it in the prior chatpers.
+
+```{r}
+pacman::p_load(conflicted,
+               tidyverse,
+               palmerpenguins,
+               tidymodels)
+conflicts_prefer(dplyr::filter,
+                 dplyr::slice,
+                 palmerpenguins::penguins)
+```
+
+We have seen the tidyverse principles. The tidymodels framework follows tidyverse philosophy and essentially is a collection of packages for `modeling` and `machine learning`. It provides a `consentent` and `modular` approach to the entire workflow - from preprocessing to evaluation of model's performance. It is noteworthy to say that `Nextflow`, an NGS workflow tool that you will see later in this course resembles tidymodel principles.
+
+## The tidymodels ecosystem
+
+The core packages bagged in tidymodels are:
+
+-   **parsnip**: Unified interface for model specification
+
+-   **recipes**: Preprocessing and feature engineering
+
+-   **workflows**: Bagging up the preprocessing and modelling steps together
+
+-   **tune**: Hyperparameter optimization
+
+-   **yardstick**: Metrics for model performance/accuracy
+
+-   **rsample**: Data sampling
+
+    The core philosophy lies in the modular approach to modelling wherein each package deals with one part of the modelling process. The packages are designed in a way so that they work together uninterruptadly in cohesive fashion.
+
+    ## Example - Tidymodels and our Penguins
+
+    We will use the penguins dataset here. We will see how the modular approach works in the tidymodels framework with this data.
+
+    ```{r}
+    # As always, first step is obviously to clean the data of the spurios na values.
+    # We assume that you already have seen this dataset in action.
+
+    penguins_clean <- penguins |>
+      drop_na()
+
+    # We will describe what kind of model we want.
+
+    lm_spec <- linear_reg() |> # We choose the linear regression model
+      set_engine("lm") # Here we specify the `engine` (You may also choose glmnet)
+
+    # Next step is to fit the model
+
+    lm_fit <- lm_spec |>
+      fit(body_mass_g ~ flipper_length_mm, data = penguins_clean)
+
+    # Note that in the above step,  `fit` takes in body_mass_g as a function of flipper_length_mm. Other terms are obvious
+
+    # Next step is to view the results of the linear regression.
+    tidy(lm_fit)
+
+    # This is a clean way to see the intercept and slope of the line that is fitted.
+    # Other terms include std.error, t-statistic and the p.value
+
+    ```
+
+    It is important to note how tidymodels separates `lm_spec` from `lm_fit` variables.
+
+    ```{r}
+
+    prediction <- lm_fit |>
+      predict(new_data = penguins_clean)
+
+    # This may not be the best way as we are essentially doing predictions on the dataset we trained on. But any compatible dataset would do. Consider this just for demonstration. I thought not to complicate with the splitted data, which might be coming in the later chapters.
+
+    results <- penguins_clean |>
+      select(body_mass_g, flipper_length_mm) |>
+      bind_cols(prediction)
+
+    # Here the predictions are done on the actual values.
+    # We select body_mass_g and flipper_length_mm columns
+    # After selection bind_cols() binds the two side by side.
+    head(results)
+    ```
+
+    ## The general philosophy begind tidymodels
+
+    ### Divide and rule!!!
+
+    In tidymodels framework, model **specification** is neatly separated from model **fitt.**
+
+    We see below an example where we specficy a model. In this case we choose the `rand_forest` or the Random Forest Model. \
+    **Note** that we are **not fitting** the model yet. This creates a model specification object which can be reused on other datasets. The `engine` argument or the specific package for the fit can be easily replaced by others. This makes the overall workflow easy to manage and clean.
+
+    ```{r}
+    rf_spec <- rand_forest(trees = 500) |>
+      set_engine("ranger") |> #Note `ranger` can be replaced by say `randomForest`
+      set_mode("classification")
+
+    rf_spec # Note that we did not fit anything. Look at the output.
+    ```
+
+    So,
+
+-   engines can be replaced at ease, for instance try `randomForest` instead of `ranger`.
+
+-   Model specifications are reusable
+
+-   The workflow is more clean and easily debuggable
+
+    ### Output
+
+    When we talk about consistency in tidymodels, we talk about the tidy data frames. Every function of tidymodels return tidy dataframes. In the following example we will view the model outputs using 3 tidymodel functions, `tidy()`, `glance()` and `augment`.
+
+    ```{r}
+    tidy(lm_fit) # Returns a tibble with the model coefficients
+    glance(lm_fit) # Statistics R-squared, adjusted r-squared, p_value etc.
+    augment(lm_fit, new_data = penguins_clean |>
+              head(10))  #The predeiction are added to data, you can add more rows say head(10)
+    ```
+
+    ## Pillars of tidyverse
+
+    ### recipes: Preprocessing
+
+    A `recipe` prepares the data before modelling. As with the recipe for a dish to cook, this lists the steps to prepare the data. But it **dont do** anything until **prep** and **bake** it. Rings a bell for all who have ever cooked something in their lifetime.
+
+    ```{r}
+    penguin_recipe <- recipe(species ~ ., data = penguins_clean) |>
+      step_normalize(all_numeric_predictors()) |> # Put everything on a similar scale
+      step_dummy(all_nominal_predictors()) # one-hot method
+
+    penguin_recipe
+    ```
+
+    As we noted before, `recipe` doesn't cook or transform the data. It just specifies the ingredients.
+
+    ```{r}
+    # First step is to `prep` or prepare the recipe
+    prepped <- prep(penguin_recipe) # Don't get alarmed vegans, we aren't harming any penguins here.
+
+    # Next is to `bake` the data
+    baked <- bake(prepped, new_data = NULL) # NULL is input as we use the training data
+
+    head(baked)
+    ```
+
+    ### Parsnip: Model interface 
+
+    Parsnip provides a modelling interface to many engines:
+
+    ```{r}
+    # mulitmodal with nnet engine
+    multinom_nnet <- multinom_reg() |> 
+      set_engine("nnet") # Multinomal logistic regression
+    # with glmnet engine
+    multinom_glmnet <- multinom_reg() |>
+      set_engine("glmnet")
+
+    # Using differnt modes `set_mode`
+    # The idea here is that many models can do classification or regression. These are the `modes` in the model
+
+    knn_classi <- nearest_neighbor() |>
+      set_mode("classification")
+
+    knn_reg <- nearest_neighbor() |> set_mode("regression")
+    ```
+
+    ### workflows: Bundle recipe + model
+
+    A workflow bundles preprocessing and modeling into one unified object:
+
+    ```{r}
+    penguin_wf <- workflow() |> # states the workflow pipes to
+      add_recipe(penguin_recipe) |> # Recipe
+      add_model(multinom_reg() |> # model 
+        set_engine("nnet") |>     # sub in model, the engine
+        set_mode("classification")) # choose classification or regression
+
+    # Should I explain more? This is very clear in my opinion. Everything was shown before.
+
+    # Workflow fitting
+    # Now comes the object to data part
+
+    penguin_fit <- penguin_wf |>
+      fit(data = penguins_clean)
+    # THe above is the most important step imo, but it needs little explanation as everyting is just `fit`ed together - prep recipe, bake and fit
+    penguin_fit
+    ```
+
+    ### Yardstick: Model metrics
+
+    Yardstick provides tidy metrics functions:
+
+    ```{r}
+    # This is simple but hard to understand for me compared to others.
+    # I think Andreas will have to give an introduction about this as well, or I will expand this.
+    ```
