@@ -195,9 +195,34 @@ The core packages bagged in tidymodels are:
 
     ### Yardstick: Model metrics
 
-    Yardstick provides tidy metrics functions:
+    After taining, there must be a way to evaluate the accuracy or robustness of the model.\
+    Yardsticks provides such tidy metrics functions.
 
     ```{r}
     # This is simple but hard to understand for me compared to others.
     # I think Andreas will have to give an introduction about this as well, or I will expand this.
+
+    ### augment() function.
+    # Takes in new data > Applies recipie transformations > Makes predictions > Returns predictions WITH original data
+
+    preds <- penguin_fit |>
+      augment(new_data = penguins_clean) #
+
+    #tail(preds) # Check!
+
+    ### accuracy() function
+    # accuracy() - What fraction of the predictions are a match.
+
+    # Args: 
+    #     data: Tibble containing truth and predicted values 
+    #     truth: Actual column (Here we have `species`)
+    #     estimate: Predicted colun (given as .pred_class)
+
+    accuracy(preds, truth = species, estimate = .pred_class)
+
+    ### metrics()
+    # In order to view several metrics all at one.
+
+    metrics(preds, truth = species, estimate = .pred_class)
+
     ```
