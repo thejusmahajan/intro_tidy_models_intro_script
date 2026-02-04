@@ -6,19 +6,24 @@ editor: visual
 
 ## Introduction to Tidymodels
 
-Necessary packages are loaded. We use the `penguins` data as we are acquainted with it in the prior chatpers.
+Necessary packages are loaded. We use the `penguins` data as we are acquainted with it in the prior chapters.
 
 ```{r}
+# Load all the usual suspects with tidymodels
 pacman::p_load(conflicted,
                tidyverse,
                palmerpenguins,
                tidymodels)
+
+# Usual workflow - Conflicted packages are taken care of!
 conflicts_prefer(dplyr::filter,
                  dplyr::slice,
                  palmerpenguins::penguins)
 ```
 
-We have seen the tidyverse principles. The tidymodels framework follows tidyverse philosophy and essentially is a collection of packages for `modeling` and `machine learning`. It provides a `consentent` and `modular` approach to the entire workflow - from preprocessing to evaluation of model's performance. It is noteworthy to say that `Nextflow`, an NGS workflow tool that you will see later in this course resembles tidymodel principles.
+We have seen the tidyverse principles. From a machine learning perspective, the `tidymodels` framework follows `tidyverse` philosophy and essentially is a collection of packages for `modeling` and `machine learning`. It provides a `consistent` and `modular` approach to the entire workflow - from preprocessing to evaluation of model's performance. It is noteworthy to say that `Nextflow`, an NGS workflow tool that you will see later in this course resembles tidymodel principles.
+
+*Takeaway* - Forget about different syntaxes for different packages, learn only one `tidymodels` way!
 
 ## The tidymodels ecosystem
 
