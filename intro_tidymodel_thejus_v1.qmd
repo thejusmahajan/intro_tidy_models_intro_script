@@ -50,6 +50,33 @@ tidy(lm_fit)
 
 *Takeaway* - **specify** the model, then **fit** it.
 
+## Step 2: Making predictions!
+
+So we have trained the model in `Step 1`. Now we `predict`.
+
+```{r}
+# Predict on the training data
+predictions <- lm_fit |>
+  predict(new_data = penguins_clean) # add previous comments
+
+# Combine predictions with actual values
+results <- penguins_clean |>
+  select(body_mass_g, flipper_length_mm) |>
+  bind_cols(predictions)
+
+head(results)
+```
+
+Note the `.pred` column. This is the model predictions of `body_mass_g` using flipper length.
+
+*Task* - Imagine what do you expect when we change the predictor from flipper length to bill length?
+
+If it is too hard to imagine, just plug in the `bill_length_mm` to `flipper_length_mm`. Are you getting the same results?
+
+## Step 3: Preprocessing with Recipes
+
+In general, machine learning works better when the data is preprocessed. This is the step when we compare Apples to Apples and **not** Apples to Oranges.
+
 ## The tidymodels ecosystem
 
 The core packages bagged in tidymodels are:
