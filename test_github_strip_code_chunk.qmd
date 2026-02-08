@@ -4,25 +4,23 @@ format: html
 editor: visual
 ---
 
-## This is a Header
+This is a Header
 
-Here is some `inline code` and **bold text**.
+Here is some inline code and bold text.
 
-```{r}
+{r}
 # This is a proper code chunk
 x <- 1 + 1
 print(x)
-```
 
-### Another Section
+Another Section
 
-*Italic text* and more content.
+Italic text and more content.
 
-```{r}
+{r}
 # Second code chunk
 library(tidyverse)
 penguins |>
   filter(species == "Adelie")
-```
-`I am adding a comment here!!! to see if he strips my file out of code chunks.`
-End of test file.
+
+I am adding a comment here!!! to see if he strips my file out of code chunks. End of test file.
