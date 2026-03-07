@@ -17,8 +17,8 @@ An introduction script to  **tidymodels** framework.
 ## Approach
 1. **Uses penguins** — Consistent with prior chapters
 
-2.  **Barebone workflow** — Introduces a working barebone code based on the tidymodels philosophy.
-3. **Yardstick on training data first** — Mainly for simplicity, but this cna be easily altered.
-4. **rsample later on** - Introduces splitting later on in a full workflow eexample
-3. **tune is omitted** — Hyperparameter tuning is omitted partially due to its increased complexity. But I can do it if deemed to be needed.
+2. **Barebone workflow** — Introduces a working barebone code based on the tidymodels philosophy.
+3. **Yardstick on training data first** — Mainly for simplicity, but this can be easily altered.
+4. **rsample later on** - Introduces splitting later on in a full workflow example.
+5. **tune is omitted** — Hyperparameter tuning is omitted partially due to its increased complexity. But I can do it if deemed to be needed.
 
